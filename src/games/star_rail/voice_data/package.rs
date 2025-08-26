@@ -268,8 +268,7 @@ impl VoicePackage {
                             }
                         }
 
-                        // This *should* be unreachable
-                        unreachable!()
+                        anyhow::bail!("Failed to determine installed voice package version")
                     }
                 }
             }
