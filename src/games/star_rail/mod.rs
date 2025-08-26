@@ -5,6 +5,9 @@ pub mod game;
 pub mod voice_data;
 pub mod telemetry;
 
+#[cfg(feature = "sophon")]
+compile_error!("This game does not support sophon yet!");
+
 #[cfg(feature = "install")]
 pub mod repairer;
 
