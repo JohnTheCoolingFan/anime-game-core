@@ -59,6 +59,16 @@ impl From<genshin::consts::GameEdition> for GameEdition {
     }
 }
 
+#[cfg(feature = "honkai")]
+impl From<crate::honkai::consts::GameEdition> for GameEdition {
+    fn from(value: crate::honkai::consts::GameEdition) -> Self {
+        match value {
+            crate::honkai::consts::GameEdition::China => Self::China,
+            _ => Self::Global
+        }
+    }
+}
+
 impl GameEdition {
     #[inline]
     pub fn branches_host(&self) -> &str {
