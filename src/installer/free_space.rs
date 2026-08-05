@@ -9,6 +9,10 @@ use sysinfo::Disks;
 ///
 /// Can return `None` if path is not prefixed by any available disk
 pub fn available(path: impl AsRef<Path>) -> Option<u64> {
+    tracing::info!(
+        "Checking available free space at {}",
+        path.as_ref().display()
+    );
     let disks = Disks::new_with_refreshed_list();
 
     // Look for a path that does have metadata (for example, if input points to a
@@ -16,6 +20,7 @@ pub fn available(path: impl AsRef<Path>) -> Option<u64> {
     // the device number is in the list of disks, because btrfs subvolumes do
     // use separate device numbers.
     let Some(meta) = path.as_ref().ancestors().find_map(|parent_path| {
+        tracing::debug!("Checking {}", parent_path.display());
         parent_path.metadata().ok().and_then(|meta| {
             let devno = meta.dev();
             disks
@@ -38,6 +43,10 @@ pub fn available(path: impl AsRef<Path>) -> Option<u64> {
     for disk in disks.iter() {
         let disk_meta = disk.mount_point().metadata();
         if disk_meta.is_ok_and(|m| m.dev() == devno) {
+            tracing::debug!(
+                "Found corresponding mountpoint: {}",
+                disk.mount_point().display()
+            );
             return Some(disk.available_space());
         }
     }
