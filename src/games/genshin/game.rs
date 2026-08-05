@@ -174,7 +174,7 @@ impl Game {
 
                 Err(err) => {
                     if self.path.exists() {
-                        if !self.path.is_dir() {
+                        if !self.path.metadata()?.is_dir() {
                             anyhow::bail!("Path is not a directory: {}", self.path.display());
                         }
                         if self
