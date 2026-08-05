@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use anyhow::Context;
+
 use crate::version::Version;
 use crate::traits::prelude::*;
 use super::api;
@@ -109,7 +111,19 @@ impl Game {
             let current = match self.get_version() {
                 Ok(version) => version,
                 Err(err) => {
-                    if self.path.exists() && self.path.metadata()?.len() == 0 {
+                    if self.path.exists() {
+                        if !self.path.is_dir() {
+                            anyhow::bail!("Path is not a directory: {}", self.path.display());
+                        }
+                        if self
+                            .path
+                            .read_dir()
+                            .context(format!("Checking game dir: {}", self.path.display()))?
+                            .count()
+                            > 0
+                        {
+                            anyhow::bail!("Game directory is not empty")
+                        }
                         let downloaded_size = response
                             .main
                             .major
