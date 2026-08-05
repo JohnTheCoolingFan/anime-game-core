@@ -173,7 +173,19 @@ impl Game {
                 Ok(version) => version,
 
                 Err(err) => {
-                    if self.path.exists() && self.path.metadata()?.len() == 0 {
+                    if self.path.exists() {
+                        if !self.path.metadata()?.is_dir() {
+                            anyhow::bail!("Path is not a directory: {}", self.path.display());
+                        }
+                        if self
+                            .path
+                            .read_dir()
+                            .context(format!("Checking game dir: {}", self.path.display()))?
+                            .count()
+                            > 0
+                        {
+                            anyhow::bail!("Game directory is not empty")
+                        }
                         let game_downloads = sophon::api::get_game_download_sophon_info(
                             &client,
                             branch_info
